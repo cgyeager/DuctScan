@@ -12,7 +12,7 @@ from fastapi import APIRouter, HTTPException, UploadFile
 
 from app.core.ducts import detect_ducts
 from app.core.refractivity import compute_m_profile
-from app.ingest.netcdf import load_sounding
+from app.ingest.loading_data import load_sounding
 from app.llm.provider import get_provider
 from app.schemas import AnalyzeResponse, ChatRequest, ChatResponse
 
@@ -23,16 +23,17 @@ router = APIRouter()
 async def analyze(file: UploadFile) -> AnalyzeResponse:
     """Analyze an uploaded NetCDF sounding: ingest -> M-profile -> duct detection."""
     suffix = Path(file.filename or "sounding.nc").suffix or ".nc"
+
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
         tmp.write(await file.read())
         tmp_path = Path(tmp.name)
 
     try:
-        # The intended analysis pipeline. Each step is a stub you will implement.
         sounding = load_sounding(tmp_path)
         m_profile = compute_m_profile(sounding)
         ducts = detect_ducts(m_profile)
         return AnalyzeResponse(sounding=sounding, m_profile=m_profile, ducts=ducts)
+
     except NotImplementedError as exc:
         raise HTTPException(
             status_code=501,

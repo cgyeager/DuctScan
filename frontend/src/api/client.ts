@@ -19,8 +19,10 @@ async function parseOrThrow<T>(response: Response): Promise<T> {
   if (!response.ok) {
     let detail = response.statusText
     try {
+
       const body = (await response.json()) as { detail?: string }
       if (body.detail) detail = body.detail
+
     } catch {
       // non-JSON error body; keep statusText
     }

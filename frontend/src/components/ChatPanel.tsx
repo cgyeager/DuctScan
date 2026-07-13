@@ -18,15 +18,22 @@ export function ChatPanel() {
 
   async function handleSend() {
     const message = input.trim()
-    if (!message || busy) return
+    if (!message || busy) {
+      return
+    }
+
     const history = messages
+
     setMessages([...history, { role: 'user', content: message }])
     setInput('')
     setBusy(true)
     setError(null)
+
     try {
+
       const response = await chat({ message, history })
       setMessages((prev) => [...prev, { role: 'assistant', content: response.reply }])
+
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err))
     } finally {
@@ -39,6 +46,7 @@ export function ChatPanel() {
       <h2>
         Ask about this sounding <span className="panel-hint">(LLM layer — coming later)</span>
       </h2>
+
       <div className="chat-messages">
         {messages.length === 0 && (
           <p className="panel-hint">
@@ -51,7 +59,9 @@ export function ChatPanel() {
           </p>
         ))}
       </div>
+
       {error && <p className="error">{error}</p>}
+
       <div className="upload-row">
         <input
           type="text"
@@ -64,6 +74,7 @@ export function ChatPanel() {
           {busy ? 'Sending…' : 'Send'}
         </button>
       </div>
+
     </section>
   )
 }

@@ -19,9 +19,13 @@ export function FileUpload({ onResult }: Props) {
   const [error, setError] = useState<string | null>(null)
 
   async function handleAnalyze() {
-    if (!file) return
+    if (!file) {
+      return
+    }
+
     setBusy(true)
     setError(null)
+
     try {
       onResult(await analyze(file))
     } catch (err) {
@@ -33,7 +37,11 @@ export function FileUpload({ onResult }: Props) {
 
   return (
     <section className="panel">
-      <h2>Sounding upload</h2>
+      <h2>Sounding</h2>
+      <div className='upload-row'>
+      <input />
+      </div>
+      {/*
       <div className="upload-row">
         <input
           type="file"
@@ -44,6 +52,7 @@ export function FileUpload({ onResult }: Props) {
           {busy ? 'Analyzing…' : 'Analyze'}
         </button>
       </div>
+      */}
       {error && <p className="error">{error}</p>}
     </section>
   )

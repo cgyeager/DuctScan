@@ -35,6 +35,7 @@ export function MProfileChart({ profile }: Props) {
         M-profile{' '}
         {isSample && <span className="panel-hint">(sample data — upload a sounding)</span>}
       </h2>
+
       <Plot
         data={[
           {

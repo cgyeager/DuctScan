@@ -33,3 +33,4 @@ app.include_router(router, prefix="/api")
 def health() -> dict[str, str]:
     """Liveness probe. Always available, even while core logic is stubbed."""
     return {"status": "ok"}
+

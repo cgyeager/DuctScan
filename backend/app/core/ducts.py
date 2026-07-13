@@ -3,6 +3,7 @@
 TODO(core): implement duct detection — the second half of the scientific core.
 """
 
+import numpy as np
 from app.schemas import Duct, MProfile
 
 
@@ -18,11 +19,37 @@ def detect_ducts(m_profile: MProfile) -> list[Duct]:
     Return one ``Duct`` per detected layer with base/top heights, thickness, and
     strength (total M decrease across the trapping layer, ``strength_dm``).
 
-    TODO(core): implement. Suggested approach:
-      1. Compute dM/dz between adjacent levels (np.diff or np.gradient).
-      2. Find contiguous runs of negative gradient (the trapping layers).
-      3. Derive duct base/top from the trapping layer and the surrounding profile,
-         then classify surface vs. elevated.
-      4. Consider a minimum-strength/thickness threshold to filter noise.
+      TODO: Consider a minimum-strength/thickness threshold to filter noise.
     """
-    raise NotImplementedError("detect_ducts: implement M-gradient duct detection")
+
+    height_m: list[float] = m_profile.height_m
+    M: list[float]  = m_profile.m_units
+
+    height_m = np.asarray(height_m, float)
+    M = np.asarray(M, float)
+
+    order = np.argsort(height_m)
+    h, m = height_m[order], M[order]
+
+    dMdz = np.gradient(m, h)
+
+    ducts = []
+    n = len(height_m)
+    for i in range(n-1):
+        
+        if M[i+1] < M[i]:
+            j = i
+            while j + 1 < n and M[j+1] < M[j]:
+                j += 1
+
+            duct = {
+            
+                "type": "surface" if i == 0 else "elevated",
+                "base_height_m": float(h[i]),
+                "top_height_m": float(h[j]),
+                "thickness_m": float(h[j] - h[i]),
+                "strength_dm": float(m[i] - m[j]),
+            }
+            ducts.append(Duct(**duct))
+            i = j
+    return ducts, dMdz

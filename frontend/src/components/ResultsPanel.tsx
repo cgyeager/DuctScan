@@ -19,11 +19,13 @@ export function ResultsPanel({ result }: Props) {
         <p className="panel-hint">No analysis yet. Upload a sounding to see results here.</p>
       ) : (
         <>
+
           <p>
             Station <strong>{result.sounding.station_id}</strong>
             {result.sounding.launch_time && <> · {result.sounding.launch_time}</>} ·{' '}
             {result.ducts.length} duct{result.ducts.length === 1 ? '' : 's'} detected
           </p>
+
           {result.ducts.length > 0 && (
             <table>
               <thead>
