@@ -47,36 +47,14 @@ def compute_m_profile(sounding: Sounding) -> MProfile:
     Consider: sorting/deduplicating levels, handling missing values (NaN).
     """
 
-    pressure_hpa: list[float] = sounding.pressure_hpa
-    height_m: list[float] = sounding.height_m
-    temperature_k: list[float] = sounding.temperature_k
-    vapor_pressure_hpa: list[float] = sounding.vapor_pressure_hpa
+    P = np.asarray(sounding.pressure_hpa, dtype=float)
+    T = np.asarray(sounding.temperature_k, dtype=float)
+    e = np.asarray(sounding.vapor_pressure_hpa, dtype=float)
+    H = np.asarray(sounding.height_m, dtype=float)
 
-    N = compute_N(pressure_hpa, temperature_k, vapor_pressure_hpa)
+    N = compute_N(P, T, e)
 
-    m_profile = MProfile()
-    m_profile.height_m = height_m
-    m_profile.m_units = compute_M(N, height_m)
+    m_profile = MProfile(
+                    height_m=sounding.height_m,
+                    m_units=compute_M(N, H))
     return m_profile
-
-"""
-
-class MProfile(BaseModel):
-
-    height_m: list[float] = Field(description="Height at each level [m]")
-    m_units: list[float] = Field(description="Modified refractivity M at each level [M-units]")
-
-
-class Sounding(BaseModel):
-    station_id: str = Field(description="IGRA station identifier, e.g. 'USM00072250'")
-    launch_time: datetime | None = Field(default=None, description="Launch timestamp (UTC)")
-    latitude: float | None = None
-    longitude: float | None = None
-    pressure_hpa: list[float] = Field(description="Pressure at each level [hPa]")
-    height_m: list[float] = Field(description="Geopotential height at each level [m]")
-    temperature_k: list[float] = Field(description="Temperature at each level [K]")
-    vapor_pressure_hpa: list[float] = Field(
-        description="Water vapor partial pressure at each level [hPa]"
-    )
-
-"""

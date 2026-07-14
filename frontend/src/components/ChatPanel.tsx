@@ -8,9 +8,13 @@
 
 import { useState } from 'react'
 import { chat } from '../api/client'
-import type { ChatMessage } from '../api/types'
+import type { AnalyzeResponse, ChatMessage } from '../api/types'
 
-export function ChatPanel() {
+interface Props {
+  result: AnalyzeResponse | null
+}
+
+export function ChatPanel({ result }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [input, setInput] = useState('')
   const [busy, setBusy] = useState(false)
@@ -22,6 +26,13 @@ export function ChatPanel() {
       return
     }
 
+
+
+    //let mprofile = '';
+    //if (result !== null) {
+    //  mprofile = result.m_profile
+    //}
+
     const history = messages
 
     setMessages([...history, { role: 'user', content: message }])
@@ -31,7 +42,7 @@ export function ChatPanel() {
 
     try {
 
-      const response = await chat({ message, history })
+      const response = await chat({ message, history, analysis: result })
       setMessages((prev) => [...prev, { role: 'assistant', content: response.reply }])
 
     } catch (err) {

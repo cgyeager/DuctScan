@@ -3,10 +3,11 @@
 
 from pathlib import Path
 
-import xarray as xr 
 import numpy as np
+import xarray as xr
 
 from app.schemas import Sounding
+
 
 def saturation_vapor_pressure(T_celsius: float) -> float:
     """ Saturation vapor pressure over water, hPa. Bolton (1980).

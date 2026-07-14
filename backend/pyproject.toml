@@ -12,6 +12,8 @@ dependencies = [
     "netCDF4>=1.7",
     "numpy>=1.26",
     "scipy>=1.13",
+    "pandas>=2.2",
+    "requests>=2.32",
 ]
 
 [project.optional-dependencies]
@@ -37,3 +39,7 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
+
+[tool.ruff.lint.flake8-bugbear]
+# FastAPI's Query/Depends-in-default idiom is intentional.
+extend-immutable-calls = ["fastapi.Query", "fastapi.Depends"]

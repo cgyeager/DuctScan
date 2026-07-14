@@ -4,6 +4,7 @@ TODO(core): implement duct detection — the second half of the scientific core.
 """
 
 import numpy as np
+
 from app.schemas import Duct, MProfile
 
 
@@ -42,14 +43,15 @@ def detect_ducts(m_profile: MProfile) -> list[Duct]:
             while j + 1 < n and M[j+1] < M[j]:
                 j += 1
 
-            duct = {
-            
-                "type": "surface" if i == 0 else "elevated",
-                "base_height_m": float(h[i]),
-                "top_height_m": float(h[j]),
-                "thickness_m": float(h[j] - h[i]),
-                "strength_dm": float(m[i] - m[j]),
-            }
-            ducts.append(Duct(**duct))
+            duct = Duct(
+                type="surface" if i == 0 else "elevated",
+                base_height_m=float(h[i]),
+                top_height_m=float(h[j]),
+                thickness_m=float(h[j] - h[i]),
+                strength_dm=float(m[i] - m[j]),
+            )
+            ducts.append(duct)
             i = j
+      
+    ducts = [d for d in ducts if d.strength_dm >= 1.0]
     return ducts, dMdz

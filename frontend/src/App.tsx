@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import type { AnalyzeResponse } from './api/types'
 import { ChatPanel } from './components/ChatPanel'
-import { FileUpload } from './components/FileUpload'
 import { MProfileChart } from './components/MProfileChart'
 import { ResultsPanel } from './components/ResultsPanel'
+import { SoundingPicker } from './components/SoundingPicker'
 
 export default function App() {
   const [result, setResult] = useState<AnalyzeResponse | null>(null)
@@ -13,15 +13,15 @@ export default function App() {
       <header>
         <h1>Refractivity Duct Analyzer</h1>
         <p className="panel-hint">
-          Upload a radiosonde sounding (NetCDF) to compute the modified refractivity profile
-          and detect atmospheric ducts.
+          Pick a station and cycle to fetch a radiosonde sounding (U. Wyoming), compute the
+          modified refractivity profile, and detect atmospheric ducts.
         </p>
       </header>
       <div className="grid">
         <div className="col">
-          <FileUpload onResult={setResult} />
+          <SoundingPicker onResult={setResult} />
           <ResultsPanel result={result} />
-          <ChatPanel />
+          <ChatPanel result={result}/>
         </div>
         <div className="col">
           <MProfileChart profile={result?.m_profile ?? null} />

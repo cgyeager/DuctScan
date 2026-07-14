@@ -111,6 +111,88 @@ th {
   font-weight: 600;
 }
 
+.picker-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  margin-bottom: 0.6rem;
+}
+
+.picker-row label {
+  font-size: 0.9rem;
+  color: #52514e;
+}
+
+.picker-row input[type='date'],
+.picker-row select {
+  padding: 0.3rem 0.4rem;
+  border: 1px solid rgba(11, 11, 11, 0.2);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 11, 11, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #fcfcfb;
+  border-radius: 10px;
+  padding: 1rem;
+  width: min(900px, 94vw);
+  max-height: 92vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.modal-close {
+  background: transparent;
+  color: #52514e;
+  font-size: 1rem;
+  padding: 0.2rem 0.5rem;
+}
+
+.station-map {
+  height: min(60vh, 520px);
+  width: 100%;
+  border-radius: 8px;
+}
+
+.station-popup table {
+  margin: 0.4rem 0;
+}
+
+.station-popup td:first-child {
+  color: #52514e;
+  padding-right: 0.6rem;
+}
+
+.map-legend {
+  margin: 0;
+}
+
+.legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 0.25rem 0 0.75rem;
+  vertical-align: baseline;
+}
+
 .chat-messages {
   min-height: 3rem;
   margin-bottom: 0.5rem;

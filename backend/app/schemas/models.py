@@ -1,19 +1,35 @@
 """Pydantic models for soundings, M-profiles, ducts, and the chat API."""
 
-from datetime import datetime
+import datetime as dt
 from typing import Literal
 
 from pydantic import BaseModel, Field
 
 
-class Sounding(BaseModel):
-    """A vertical radiosonde profile (one launch), as ingested from NetCDF/IGRA.
+class Station(BaseModel):
+    """A radiosonde station as listed by the U. Wyoming upper-air service."""
 
-    All level arrays are parallel (same length, ordered bottom-up).
-    """
+    station_id: str = Field(description="Station identifier, e.g. '72293'")
+    name: str
+    latitude: float
+    longitude: float
+    src: str = Field(description="Wyoming data source for this cycle, e.g. 'BUFR' or 'TEMP'")
+
+
+class AnalyzeRequest(BaseModel):
+    """Request to fetch and analyze one sounding from the Wyoming database."""
+
+    station_id: str
+    src: str = Field(description="Pass through the station's 'src' from GET /stations")
+    # Field named after the wire format; the module alias avoids the name clash.
+    datetime: dt.datetime = Field(description="Cycle time (UTC), hours 00/03/.../21Z")
+
+
+class Sounding(BaseModel):
+    """A vertical radiosonde profile"""
 
     station_id: str = Field(description="IGRA station identifier, e.g. 'USM00072250'")
-    launch_time: datetime | None = Field(default=None, description="Launch timestamp (UTC)")
+    launch_time: dt.datetime | None = Field(default=None, description="Launch timestamp (UTC)")
     latitude: float | None = None
     longitude: float | None = None
     pressure_hpa: list[float] = Field(description="Pressure at each level [hPa]")
@@ -59,6 +75,7 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(description="The user's new message")
     history: list[ChatMessage] = Field(default_factory=list, description="Prior turns")
+    analysis: AnalyzeResponse | None = None
 
 
 class ChatResponse(BaseModel):

@@ -1,6 +1,6 @@
 /** Typed client for the FastAPI backend. */
 
-import type { AnalyzeResponse, ChatRequest, ChatResponse } from './types'
+import type { AnalyzeRequest, AnalyzeResponse, ChatRequest, ChatResponse, Station } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000'
 
@@ -31,13 +31,19 @@ async function parseOrThrow<T>(response: Response): Promise<T> {
   return (await response.json()) as T
 }
 
-/** Upload a NetCDF sounding for analysis. Returns 501 (ApiError) while the backend is stubbed. */
-export async function analyze(file: File): Promise<AnalyzeResponse> {
-  const form = new FormData()
-  form.append('file', file)
+/** List radiosonde stations available for a cycle (proxied from U. Wyoming). */
+export async function getStations(datetime?: string): Promise<Station[]> {
+  const query = datetime ? `?datetime=${encodeURIComponent(datetime)}` : ''
+  const response = await fetch(`${BASE_URL}/api/stations${query}`)
+  return parseOrThrow<Station[]>(response)
+}
+
+/** Fetch + analyze one Wyoming sounding. Returns 501 (ApiError) while the backend is stubbed. */
+export async function analyze(request: AnalyzeRequest): Promise<AnalyzeResponse> {
   const response = await fetch(`${BASE_URL}/api/analyze`, {
     method: 'POST',
-    body: form,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
   })
   return parseOrThrow<AnalyzeResponse>(response)
 }

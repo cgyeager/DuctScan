@@ -14,14 +14,10 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# Allow the Vite dev server during local development.
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:8080",  # docker-compose frontend
-    ],
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1):\d+",
     allow_methods=["*"],
     allow_headers=["*"],
 )

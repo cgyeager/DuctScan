@@ -16,7 +16,8 @@ def test_health():
 def test_analyze_returns_501_while_stubbed():
     """The stubbed pipeline must fail loudly (501), not crash or silently succeed."""
     response = client.post(
-        "/api/analyze", files={"file": ("sounding.nc", b"not a real netcdf")}
+        "/api/analyze",
+        json={"station_id": "72293", "src": "BUFR", "datetime": "2026-07-13T12:00:00"},
     )
     assert response.status_code == 501
 

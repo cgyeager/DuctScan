@@ -5,19 +5,23 @@ keep the two in sync when you change anything here.
 """
 
 from app.schemas.models import (
+    AnalyzeRequest,
     AnalyzeResponse,
     ChatRequest,
     ChatResponse,
     Duct,
     MProfile,
     Sounding,
+    Station,
 )
 
 __all__ = [
+    "AnalyzeRequest",
     "AnalyzeResponse",
     "ChatRequest",
     "ChatResponse",
     "Duct",
     "MProfile",
     "Sounding",
+    "Station",
 ]
