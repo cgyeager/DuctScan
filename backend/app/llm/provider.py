@@ -5,14 +5,15 @@ backend (direct Anthropic API for local dev, AWS Bedrock in production) is
 swappable via configuration, not code changes.
 """
 
-import os
 from abc import ABC, abstractmethod
-from anthropic import Anthropic
-from fastapi import HTTPException
+from anthropic import AsyncAnthropic
+from fastapi.concurrency import run_in_threadpool
 from app.schemas import ChatRequest, ChatResponse
 from app.core.config import settings
 from app.schemas.models import ChatMessage
-from app.llm.instruction import TOP_INSTRUCTION, BOTTOM_INSTRUCTION, REFUSAL_STRING
+from app.llm.instruction import TOP_INSTRUCTION, BOTTOM_INSTRUCTION
+from app.llm.search import retrieve_chunks
+from app.llm.exceptions import ProviderNotConfiguredError, RetrievalError, LLMError
 
 
 TOP_K_DEFAULT = 3
@@ -51,32 +52,35 @@ class DirectAPIProvider(LLMProvider):
     """
     def __init__(self):
         if not settings.anthropic_api_key:
-            raise RuntimeError("ANTHROPIC_API_KEY must be set in .env")
-        self.client = Anthropic(api_key=settings.anthropic_api_key)
+            raise ProviderNotConfiguredError("ANTHROPIC_API_KEY must be set in .env")
+        self.client = AsyncAnthropic(api_key=settings.anthropic_api_key)
 
     async def chat(self, request: ChatRequest) -> ChatResponse:
 
 
         try:
-            from app.llm.search import retrieve_chunks
-            chunks = retrieve_chunks(query=request.message, top_k=TOP_K_DEFAULT)
+            chunks = await run_in_threadpool(
+                retrieve_chunks,
+                query=request.message, 
+                top_k=TOP_K_DEFAULT,
+            )
+        except LLMError:
+            raise
         except Exception as exc:
-            #logger.exception("Retrieval failed")
-            raise HTTPException(status_code=500, detail=f"Retrieval error: {exc}") from exc
+            raise RetrievalError(f"chunk retrieval failed: {exc}") from exc
 
         if not chunks:
             pass
 
         context = _format_context(chunks)
         prompt = f"{TOP_INSTRUCTION}\n\nCONTEXT:\n{context}\n\n"
-        history: str = ''
 
         prompt += "Message History Start\n"
         for h in request.history:
-            history += h.role
-            history += '\n'
-            history += h.content
-            history += '\n\n'
+            prompt += h.role
+            prompt += '\n'
+            prompt += h.content
+            prompt += '\n\n'
         prompt += "Message History End\n"
 
         if request.analysis:
@@ -96,41 +100,11 @@ class DirectAPIProvider(LLMProvider):
 
         chat_message = ChatMessage(role="user", content=prompt)
 
-        response = self.client.messages.create(
+        response = await self.client.messages.create(
             model=settings.anthropic_model,
             max_tokens=1024,
             messages=[{"role": chat_message.role, "content": chat_message.content}],
         )
-
-        #msg:str = request.message
-        #history: str = ''
-
-        #history += "Message History Start\n"
-        #for h in request.history:
-        #    history += h.role
-        #    history += '\n'
-        #    history += h.content
-        #    history += '\n\n'
-        #history += "Message History End\n"
-
-        #if request.analysis != None: 
-        #    history += "Refractivity M Profile\n"
-        #    history += "Heights:"
-        #    history += str(request.analysis.m_profile.height_m)
-        #    history += "m-units:"
-        #    history += str(request.analysis.m_profile.m_units)
-        #    history += "\n"
-        #        
-        #history += "New Message\n"
-        #history += msg
-
-        #chat_message = ChatMessage(role="user", content=history)
-
-        #response = self.client.messages.create(
-        #    model=settings.anthropic_model,
-        #    max_tokens=1024,
-        #    messages=[{"role": chat_message.role, "content": chat_message.content}],
-        #)
 
         return ChatResponse(reply=response.content[0].text)
 

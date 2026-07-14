@@ -17,6 +17,7 @@ from app.core.refractivity import compute_m_profile
 from app.ingest.wyoming import fetch_stations, load_sounding_from_wyoming
 from app.llm.provider import get_provider
 from app.schemas import AnalyzeRequest, AnalyzeResponse, ChatRequest, ChatResponse, Station
+from app.llm.exceptions import ProviderNotConfiguredError, RetrievalError
 
 router = APIRouter()
 
@@ -100,7 +101,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
         provider = get_provider()
         return await provider.chat(request)
     except NotImplementedError as exc:
-        raise HTTPException(
-            status_code=501,
-            detail=f"LLM layer not implemented yet: {exc}",
-        ) from exc
+        raise HTTPException(status_code=501, detail=f"LLM layer not implemented yet: {exc}") from exc
+    except ProviderNotConfiguredError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    except RetrievalError as exc:
+        raise HTTPException(status_code=502, detail=f"Retrieval failed: {exc}") from exc

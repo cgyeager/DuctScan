@@ -43,7 +43,7 @@ def ingest_document(*, file_path: str, document_id: str) -> dict:
     logger.info("Ingesting document %s (id=%s)", path.name, document_id)
 
     # ── Parse ─────────────────────────────────────────────────────────
-    if ".txt" in file_path:
+    if path.suffix.lower() == ".txt":
         pages = parse_txt(file_path)
     else:
         pages = parse_pdf(file_path)
