@@ -18,7 +18,7 @@ class ChunkStore:
     """ Wrapper over DB 'chunks' table """
 
     def __init__(self) -> None:
-        self._db = get_client
+        self._db = get_client()
 
     def insert_chunk(
         self,
@@ -57,7 +57,7 @@ class ChunkStore:
  
     def delete_document(self, document_id: str) -> None:
         """Remove all chunks associated with a document (useful for re-ingestion)."""
-        self._db.table("chunks").delte().eq("document_id", document_id).execute()
+        self._db.table("chunks").delete().eq("document_id", document_id).execute()
 
     def similarity_search(
         self,

@@ -53,5 +53,5 @@ def detect_ducts(m_profile: MProfile) -> list[Duct]:
             ducts.append(duct)
             i = j
       
-    ducts = [d for d in ducts if d.strength_dm >= 1.0]
+    ducts = [d for d in ducts if d.strength_dm >= 6.0]
     return ducts, dMdz
